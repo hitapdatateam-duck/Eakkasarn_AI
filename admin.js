@@ -24,12 +24,34 @@ async function ensureLibs() {
 }
 const b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 32768) s += String.fromCharCode.apply(null, u8.subarray(i, i + 32768)); return btoa(s); };
 
+/* ======================= password gate ======================= */
+function renderGate(root) {
+  root.innerHTML = `<div class="admin-gate">
+    <h1>${tr('ผู้ดูแลระบบ', 'Admin')}</h1>
+    <p>${HD.cloud.user() ? tr('บัญชีที่เข้าอยู่ไม่ใช่ผู้ดูแล — ใส่รหัสผ่านผู้ดูแลเพื่อสลับบัญชี', 'This account is not an admin — enter the admin password to switch') : tr('ใส่รหัสผ่านผู้ดูแลเพื่อเข้าสู่หลังบ้าน', 'Enter the admin password to continue')}</p>
+    <form id="gateForm"><input type="password" id="gatePw" autocomplete="current-password" placeholder="${tr('รหัสผ่าน', 'Password')}" required><button class="btn btn-dark" type="submit" id="gateBtn">${tr('เข้าสู่ระบบ', 'Sign in')}</button></form>
+    <div class="err" id="gateErr"></div>
+  </div>`;
+  $('#gatePw').focus();
+  $('#gateForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = $('#gateBtn'); btn.disabled = true; $('#gateErr').textContent = '';
+    try {
+      await HD.cloud.signInAdmin($('#gatePw').value);
+      root.innerHTML = `<div class="admin-empty">${tr('กำลังตรวจสิทธิ์…', 'Checking access…')}</div>`;
+    } catch (err) {
+      btn.disabled = false;
+      $('#gateErr').textContent = /invalid/i.test(err.message) ? tr('รหัสผ่านไม่ถูกต้อง', 'Wrong password') : err.message;
+      $('#gatePw').select();
+    }
+  });
+}
+
 /* ======================= shell ======================= */
 function render() {
   const root = $('#adminRoot');
   if (!HD.cloud || !HD.cloud.client()) { root.innerHTML = `<div class="admin-empty">${tr('กำลังเชื่อมต่อ…', 'Connecting…')}</div>`; return; }
-  if (!HD.cloud.user()) { root.innerHTML = `<div class="admin-empty">${tr('เข้าสู่ระบบด้วยบัญชีผู้ดูแลก่อนครับ', 'Sign in with an admin account first.')}</div>`; return; }
-  if (!HD.cloud.isAdmin()) { root.innerHTML = `<div class="admin-empty">${tr('บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ', 'This account is not an admin.')}</div>`; return; }
+  if (!HD.cloud.user() || !HD.cloud.isAdmin()) { if (!$('#gateForm', root)) renderGate(root); return; }
   root.innerHTML = `
     <h1 class="page-title">${tr('ผู้ดูแลระบบ', 'Admin')}</h1>
     <p class="page-sub">${tr('เพิ่ม ซ่อน หรือลบแม่แบบเอกสาร และจัดการผู้ดูแล', 'Add, hide or delete templates and manage admins')}</p>

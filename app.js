@@ -802,7 +802,12 @@
       const b = e.target.closest('button'); if (!b) return;
       homeLang = b.dataset.v; $$('#homeLang button').forEach(x => x.classList.toggle('active', x === b));
     });
-    const submitOnEnter = (ta, form) => ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); } });
+    const autoGrow = ta => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 200) + 'px'; };
+    const submitOnEnter = (ta, form) => {
+      ta.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); } });
+      ta.addEventListener('input', () => autoGrow(ta));
+      form.addEventListener('submit', () => setTimeout(() => autoGrow(ta)));
+    };
     submitOnEnter($('#homeText'), $('#homeComposer'));
     submitOnEnter($('#chatText'), $('#chatComposer'));
     $('#homeComposer').addEventListener('submit', e => {
@@ -951,7 +956,7 @@
     templates: () => TEMPLATES,
     builtinIds: () => [...HD_BUILTIN_IDS],
     categories: () => CATS.filter(c => c.id !== 'all'),
-    setAdmin(isAdmin) { $('#adminLink').hidden = !isAdmin; if (location.hash.startsWith('#/admin') && !isAdmin) location.hash = '#/'; },
+    setAdmin() { if (location.hash.startsWith('#/admin') && HD.admin) HD.admin.render(); },
     toast: msg => toast(msg),
     tr: (a, b) => tr(a, b),
     remoteFailed() { remoteLoaded = true; route(); },

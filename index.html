@@ -41,7 +41,7 @@
 
     <nav class="side-links">
       <a href="#/forms" data-route="forms"><span><span class="i18n-th">คลังแบบฟอร์ม</span><span class="i18n-en">Form library</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
-      <a href="#/admin" id="adminLink" hidden><span><span class="i18n-th">ผู้ดูแลระบบ</span><span class="i18n-en">Admin</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a>
+      <a href="#/admin" id="adminLink"><span><span class="i18n-th">ผู้ดูแลระบบ</span><span class="i18n-en">Admin</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></a>
       <button type="button" id="helpBtn"><span><span class="i18n-th">วิธีใช้งาน</span><span class="i18n-en">How it works</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg></button>
     </nav>
 
@@ -78,7 +78,7 @@
         <p class="hello-sub"><span class="i18n-th">แค่บอกสิ่งที่คุณต้องการ ที่เหลือให้เราจัดการให้</span><span class="i18n-en">Just tell us what you need — we'll handle the rest</span></p>
 
         <form class="composer" id="homeComposer">
-          <textarea id="homeText" rows="2" data-ph-th="เช่น ขอลาพักผ่อน ตั้งแต่ 20 ต.ค. 2569 ถึง 27 ต.ค. 2569 ชื่อ นางสาวสมหญิง ใจดี ตำแหน่งนักวิจัย ฝ่าย HTA  ·  ทำ NDA ให้นาย…  ·  ใบสำคัญรับเงิน…" data-ph-en="e.g. Annual leave from 20 Oct 2026 to 27 Oct 2026, name Ms. Jane Doe, position Researcher  ·  NDA for…  ·  receipt voucher…"></textarea>
+          <textarea id="homeText" rows="1" data-ph-th="พิมพ์ข้อความ… เช่น ขอลาพักผ่อน 20–27 ต.ค. 2569" data-ph-en="Message… e.g. annual leave 20–27 Oct 2026"></textarea>
           <div class="composer-bar">
             <div class="doc-lang" id="homeLang" role="radiogroup">
               <button type="button" class="active" data-v="auto"><span class="i18n-th">ตรวจภาษาอัตโนมัติ</span><span class="i18n-en">Auto-detect</span></button>
@@ -147,7 +147,7 @@
           </div>
           <div class="thread" id="thread"></div>
           <form class="composer composer-chat" id="chatComposer">
-            <textarea id="chatText" rows="2" data-ph-th="พิมพ์ข้อมูลเพิ่ม หรือสั่งแก้ เช่น “ตำแหน่ง นักวิจัยอาวุโส”" data-ph-en="Add details or edit, e.g. “position Senior Researcher”"></textarea>
+            <textarea id="chatText" rows="1" data-ph-th="พิมพ์ข้อมูลเพิ่ม หรือสั่งแก้ เช่น “ตำแหน่ง นักวิจัยอาวุโส”" data-ph-en="Add details or edit, e.g. “position Senior Researcher”"></textarea>
             <div class="composer-bar">
               <div class="quick" id="quick"></div>
               <button class="send" type="submit" aria-label="Send">

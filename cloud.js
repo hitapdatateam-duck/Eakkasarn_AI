@@ -133,6 +133,12 @@
       const { error } = await client.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect, shouldCreateUser: true } });
       if (error) throw error;
     },
+    /** Admin page: password sign-in to the configured admin account (no email round-trip). */
+    async signInAdmin(password) {
+      if (!client) throw new Error('Supabase is not available');
+      const { error } = await client.auth.signInWithPassword({ email: CFG.adminEmail, password });
+      if (error) throw error;
+    },
     async signOut() {
       if (!client) return;
       await flush();
