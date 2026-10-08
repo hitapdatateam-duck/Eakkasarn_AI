@@ -4,7 +4,17 @@
 (() => {
   'use strict';
   const HD = window.HD, U = HD.util;
-  const LS = { lang: 'hitap_nda_lang', docs: 'hitap_nda_docs', profile: 'hitap_docs_profile' };
+  // Email sign-in (@hitap.net only, no verification yet): documents and profile are kept per email in this browser
+  const DOMAIN = (window.HD_SUPABASE && window.HD_SUPABASE.domain) || 'hitap.net';
+  const ME_KEY = 'hitap_email';
+  const ME = (() => { try { const e = (localStorage.getItem(ME_KEY) || '').toLowerCase(); return e.endsWith('@' + DOMAIN) ? e : ''; } catch { return ''; } })();
+  const LS = { lang: 'hitap_nda_lang', docs: ME ? `hitap_nda_docs:${ME}` : 'hitap_nda_docs', profile: ME ? `hitap_docs_profile:${ME}` : 'hitap_docs_profile' };
+  // the first email signed in on this browser keeps documents made before sign-in existed
+  if (ME) try {
+    for (const [k, legacy] of [[LS.docs, 'hitap_nda_docs'], [LS.profile, 'hitap_docs_profile']]) {
+      if (localStorage.getItem(k) == null && localStorage.getItem(legacy) != null) { localStorage.setItem(k, localStorage.getItem(legacy)); localStorage.removeItem(legacy); }
+    }
+  } catch (e) { /* storage blocked */ }
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const store = {
@@ -754,7 +764,7 @@
     store.set(LS.lang, l);
     $$('.lang-switch button').forEach(b => b.classList.toggle('active', b.dataset.lang === l));
     applyPlaceholders(); route();
-    if (HD.cloud) renderAccount({ user: HD.cloud.user(), status: HD.cloud.status() });
+    renderAccount(HD.cloud ? { user: HD.cloud.user(), status: HD.cloud.status() } : {});
   }
   function toast(msg) {
     const t = $('#toast'); t.textContent = msg; t.classList.add('show');
@@ -966,42 +976,52 @@
       location.hash = '#/'; route();
     },
   };
-  function renderAccount({ user, status }) {
+  function renderAccount({ user, status } = {}) {
     const box = $('#account');
     if (!box) return;
-    if (!HD.cloud || !HD.cloud.enabled()) { box.hidden = true; return; }
     box.hidden = false;
     const label = {
       syncing: tr('กำลังซิงก์…', 'Syncing…'), saving: tr('กำลังบันทึก…', 'Saving…'), synced: tr('บันทึกบนคลาวด์แล้ว', 'Saved to cloud'),
       error: tr('ซิงก์ไม่สำเร็จ — ลองใหม่', 'Sync failed — retry'), offline: tr('ออฟไลน์', 'Offline'),
     }[status] || '';
-    $('#avatar').textContent = user ? user.email[0].toUpperCase() : 'H';
-    $('#whoName').textContent = user ? user.email : 'HITAP';
-    $('#whoSub').textContent = user ? label : tr('ยังไม่ได้เข้าสู่ระบบ · เก็บไว้ในเครื่องนี้', 'Not signed in · saved on this device');
-    $('#authBtn').textContent = user ? tr('ออกจากระบบ', 'Sign out') : tr('เข้าสู่ระบบ', 'Sign in');
-    $('#authBtn').dataset.mode = user ? 'out' : 'in';
+    const email = (user && user.email) || ME;
+    $('#avatar').textContent = email ? email[0].toUpperCase() : 'H';
+    $('#whoName').textContent = email || 'HITAP';
+    $('#whoSub').textContent = user ? label : ME ? tr('เก็บไว้ในเบราว์เซอร์นี้', 'Saved in this browser') : tr('ยังไม่ได้เข้าสู่ระบบ', 'Not signed in');
+    $('#authBtn').textContent = email ? tr('ออกจากระบบ', 'Sign out') : tr('เข้าสู่ระบบ', 'Sign in');
+    $('#authBtn').dataset.mode = email ? 'out' : 'in';
+  }
+  function openLogin() {
+    $('#loginMsg').textContent = ''; $('#loginClose').hidden = !ME;
+    if (!$('#loginDlg').open) $('#loginDlg').showModal();
+    $('#loginEmail').focus();
   }
   function bindAccount() {
     $('#authBtn').addEventListener('click', async () => {
       if ($('#authBtn').dataset.mode === 'out') {
-        if (confirm(tr('ออกจากระบบ? เอกสารในเครื่องนี้จะถูกล้าง (ยังอยู่บนคลาวด์)', 'Sign out? Documents on this device are cleared (they stay in the cloud).'))) await HD.cloud.signOut();
+        if (!confirm(tr('ออกจากระบบ? เอกสารของคุณยังเก็บอยู่ในเบราว์เซอร์นี้ เข้าด้วยอีเมลเดิมเพื่อเปิดอีกครั้ง', 'Sign out? Your documents stay in this browser — sign in with the same email to see them again.'))) return;
+        try { localStorage.removeItem(ME_KEY); } catch (e) { /* storage blocked */ }
+        // end an admin session too, without wiping this browser's documents
+        if (HD.cloud && HD.cloud.user()) await HD.cloud.client().auth.signOut();
+        location.hash = '#/'; location.reload();
         return;
       }
-      $('#loginMsg').textContent = ''; $('#loginMs').disabled = false; $('#loginDlg').showModal();
+      openLogin();
     });
     $('#whoSub').addEventListener('click', () => { if (HD.cloud && HD.cloud.status() === 'error') HD.cloud.sync(); });
-    $('#loginMs').addEventListener('click', async () => {
-      $('#loginMs').disabled = true;
-      $('#loginMsg').textContent = tr('กำลังไปหน้า Microsoft…', 'Redirecting to Microsoft…');
-      try { await HD.cloud.signInMicrosoft(); }
-      catch (err) {
-        $('#loginMs').disabled = false;
-        $('#loginMsg').textContent = /provider is not enabled|Unsupported provider/i.test(err.message || '')
-          ? tr('ยังไม่ได้เปิดการเข้าสู่ระบบด้วย Microsoft ใน Supabase', 'Microsoft sign-in is not enabled in Supabase yet')
-          : tr('เข้าสู่ระบบไม่สำเร็จ: ', 'Sign-in failed: ') + err.message;
-      }
+    $('#loginForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const email = $('#loginEmail').value.trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+$/.test(email)) { $('#loginMsg').textContent = tr('อีเมลไม่ถูกต้อง', 'Invalid email'); return; }
+      if (!email.endsWith('@' + DOMAIN)) { $('#loginMsg').textContent = tr(`ใช้ได้เฉพาะอีเมล @${DOMAIN} เท่านั้น`, `Only @${DOMAIN} emails can sign in`); return; }
+      try { localStorage.setItem(ME_KEY, email); } catch (err) { $('#loginMsg').textContent = tr('เบราว์เซอร์ไม่อนุญาตให้บันทึกข้อมูล', 'This browser blocks storage'); return; }
+      location.reload();
     });
     $('#loginClose').addEventListener('click', () => $('#loginDlg').close());
+    // without an email the app stays behind the sign-in dialog
+    $('#loginDlg').addEventListener('cancel', e => { if (!ME) e.preventDefault(); });
+    renderAccount();
+    if (!ME) openLogin();
     // cloud.js loads after this file and calls HD.onCloudReady once HD.cloud exists
     HD.onCloudReady = () => HD.cloud.onChange(renderAccount);
     if (HD.cloud) HD.onCloudReady();
