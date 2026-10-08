@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&family=Charmonman:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261008b">
+<link rel="stylesheet" href="styles.css?v=20261008c">
 </head>
 <body>
 <div class="app">
@@ -253,17 +253,25 @@
 
 <!-- Sign-in dialog -->
 <dialog class="modal modal-sm" id="loginDlg">
-  <form class="modal-card" id="loginForm">
+  <form class="modal-card" id="loginForm" data-mode="in">
     <div class="modal-head">
-      <h2><span class="i18n-th">เข้าสู่ระบบ</span><span class="i18n-en">Sign in</span></h2>
+      <h2 class="login-in"><span class="i18n-th">เข้าสู่ระบบ</span><span class="i18n-en">Sign in</span></h2>
+      <h2 class="login-up"><span class="i18n-th">สร้างบัญชี</span><span class="i18n-en">Create account</span></h2>
       <button type="button" class="icon-btn" id="loginClose" aria-label="Close">✕</button>
     </div>
-    <p class="help-note"><span class="i18n-th">ใส่อีเมลแล้วเราจะส่งลิงก์เข้าสู่ระบบให้ (ไม่ต้องตั้งรหัสผ่าน) เอกสาร ลายเซ็น และข้อมูลของคุณจะซิงก์ทุกเครื่อง และมีแค่คุณที่เห็น</span><span class="i18n-en">Enter your email and we'll send a sign-in link (no password). Your documents, signatures and details sync across devices and only you can see them.</span></p>
+    <p class="help-note"><span class="i18n-th">เอกสาร ลายเซ็น และข้อมูลของคุณจะซิงก์ทุกเครื่อง และมีแค่คุณที่เห็น</span><span class="i18n-en">Your documents, signatures and details sync across devices and only you can see them.</span></p>
     <label class="field"><span><span class="i18n-th">อีเมล</span><span class="i18n-en">Email</span></span>
       <input id="loginEmail" type="email" autocomplete="email" placeholder="name@hitap.net" required>
     </label>
+    <label class="field"><span><span class="i18n-th">รหัสผ่าน</span><span class="i18n-en">Password</span></span>
+      <input id="loginPassword" type="password" autocomplete="current-password" minlength="6" required>
+    </label>
     <p class="note" id="loginMsg" aria-live="polite"></p>
-    <div class="modal-actions"><span class="grow"></span><button type="submit" class="btn btn-dark" id="loginSend"><span class="i18n-th">ส่งลิงก์เข้าสู่ระบบ</span><span class="i18n-en">Send sign-in link</span></button></div>
+    <div class="modal-actions">
+      <button type="button" class="link-btn" id="loginToggle"><span class="login-in"><span class="i18n-th">ยังไม่มีบัญชี? สร้างบัญชี</span><span class="i18n-en">No account? Create one</span></span><span class="login-up"><span class="i18n-th">มีบัญชีแล้ว? เข้าสู่ระบบ</span><span class="i18n-en">Have an account? Sign in</span></span></button>
+      <span class="grow"></span>
+      <button type="submit" class="btn btn-dark" id="loginSend"><span class="login-in"><span class="i18n-th">เข้าสู่ระบบ</span><span class="i18n-en">Sign in</span></span><span class="login-up"><span class="i18n-th">สร้างบัญชี</span><span class="i18n-en">Create account</span></span></button>
+    </div>
   </form>
 </dialog>
 
@@ -288,15 +296,15 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js"></script>
-<script src="templates.js?v=20261008b"></script>
-<script src="catalog.js?v=20261008b"></script>
-<script src="engines/util.js?v=20261008b"></script>
-<script src="engines/docx.js?v=20261008b"></script>
-<script src="engines/pdf.js?v=20261008b"></script>
-<script src="engines/xlsx.js?v=20261008b"></script>
-<script src="config.js?v=20261008b"></script>
-<script src="app.js?v=20261008b"></script>
-<script src="cloud.js?v=20261008b"></script>
-<script type="module" src="admin.js?v=20261008b"></script>
+<script src="templates.js?v=20261008c"></script>
+<script src="catalog.js?v=20261008c"></script>
+<script src="engines/util.js?v=20261008c"></script>
+<script src="engines/docx.js?v=20261008c"></script>
+<script src="engines/pdf.js?v=20261008c"></script>
+<script src="engines/xlsx.js?v=20261008c"></script>
+<script src="config.js?v=20261008c"></script>
+<script src="app.js?v=20261008c"></script>
+<script src="cloud.js?v=20261008c"></script>
+<script type="module" src="admin.js?v=20261008c"></script>
 </body>
 </html>

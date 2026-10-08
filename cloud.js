@@ -1,4 +1,4 @@
-/* Supabase back-end: email magic-link sign-in and per-user sync of documents and profile.
+/* Supabase back-end: email + password sign-in and per-user sync of documents and profile.
    Row Level Security limits every row to its owner, so the publishable key is safe in the browser.
    Signed out, the app keeps working from localStorage only. */
 (() => {
@@ -127,11 +127,19 @@
     onChange(fn) { listeners.add(fn); fn({ user, status }); return () => listeners.delete(fn); },
     saveDoc(d) { if (!user || !d) return; pending.set(d.id, d); setStatus('saving'); schedule(); },
     saveProfile(p) { if (!user) return; profilePending = p; schedule(); },
-    async signIn(email) {
+    async signInPassword(email, password) {
       if (!client) throw new Error('Supabase is not available');
-      const redirect = location.origin + location.pathname;
-      const { error } = await client.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect, shouldCreateUser: true } });
+      const { data, error } = await client.auth.signInWithPassword({ email, password });
       if (error) throw error;
+      return data;
+    },
+    async signUp(email, password) {
+      if (!client) throw new Error('Supabase is not available');
+      const { data, error } = await client.auth.signUp({ email, password });
+      if (error) throw error;
+      // with email confirmation on, Supabase returns no session and an empty identities list for an existing address
+      if (data.user && Array.isArray(data.user.identities) && !data.user.identities.length) throw new Error('User already registered');
+      return data;
     },
     /** Admin page: password sign-in to the configured admin account (no email round-trip). */
     async signInAdmin(password) {

@@ -560,3 +560,8 @@ table.xl td.xl-input:hover { outline: 1px solid var(--emerald); outline-offset: 
 .bot-body .lead { font-size: 15.5px; }
 .bot-body .kv { font-size: 14px; }
 .doc-card .t b { font-size: 15px; }
+
+/* ---- Password sign-in dialog ---- */
+#loginForm[data-mode="in"] .login-up, #loginForm[data-mode="up"] .login-in { display: none; }
+.link-btn { background: none; border: 0; padding: 0; color: var(--muted-fg); font-size: 13px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.link-btn:hover { color: var(--fg); }

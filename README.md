@@ -33,7 +33,7 @@ To add a form: copy the file into `templates/`, add an entry to `build/templates
 
 ## Admin back-office
 
-Admins (rows in `public.admins`, by email) sign in with the magic link and get an **ผู้ดูแลระบบ / Admin**
+Admins (rows in `public.admins`, by email) sign in with email + password (or the password-only gate at `#/admin`) and get an **ผู้ดูแลระบบ / Admin**
 menu (`#/admin`):
 
 - **Templates** — hide/show any template; delete uploaded ones (built-in templates live in this repo, so they
