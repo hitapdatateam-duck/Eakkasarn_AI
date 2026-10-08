@@ -41,7 +41,11 @@ function renderGate(root) {
       root.innerHTML = `<div class="admin-empty">${tr('กำลังตรวจสิทธิ์…', 'Checking access…')}</div>`;
     } catch (err) {
       btn.disabled = false;
-      $('#gateErr').textContent = /invalid/i.test(err.message) ? tr('รหัสผ่านไม่ถูกต้อง', 'Wrong password') : err.message;
+      const m = err.message || '';
+      $('#gateErr').textContent = /invalid/i.test(m) ? tr('รหัสผ่านไม่ถูกต้อง', 'Wrong password')
+        : /not confirmed/i.test(m) ? tr('บัญชีผู้ดูแลยังไม่ได้ยืนยันอีเมล', 'The admin account email is not confirmed yet')
+        : /rate|too many/i.test(m) ? tr('ลองหลายครั้งเกินไป รอสักครู่แล้วลองใหม่', 'Too many attempts — wait a moment')
+        : m;
       $('#gatePw').select();
     }
   });
