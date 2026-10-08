@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="th" data-lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HITAP Docs</title>
+<script>try{document.documentElement.dataset.lang=JSON.parse(localStorage.getItem('hitap_nda_lang'))==='en'?'en':'th'}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@500;600;700&family=Charmonman:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <!-- ============ Sidebar ============ -->
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#/">HITAP Docs</a>
+
+    <a class="new-chat" href="#/">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+      <span>
+        <b><span class="i18n-th">เอกสารใหม่</span><span class="i18n-en">New document</span></b>
+        <small><span class="i18n-th">ตรวจประเภทเอกสารอัตโนมัติ</span><span class="i18n-en">Detects the document type</span></small>
+      </span>
+    </a>
+
+    <a class="side-card" href="#/forms" data-route="forms">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+      <span class="grow"><span class="i18n-th">แบบฟอร์ม</span><span class="i18n-en">Forms</span></span>
+      <span class="pill-new"><span class="i18n-th">ฟรี</span><span class="i18n-en">Free</span></span>
+      <svg class="arrow" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg>
+    </a>
+
+    <label class="side-search">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="historySearch" type="search" data-ph-th="ค้นหาแชท..." data-ph-en="Search chats...">
+    </label>
+
+    <ul class="history" id="historyList"></ul>
+
+    <nav class="side-links">
+      <a href="#/forms" data-route="forms"><span><span class="i18n-th">คลังแบบฟอร์ม</span><span class="i18n-en">Form library</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+      <button type="button" id="helpBtn"><span><span class="i18n-th">วิธีใช้งาน</span><span class="i18n-en">How it works</span></span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg></button>
+    </nav>
+
+    <div class="account" id="account" hidden>
+      <button type="button" class="auth-btn" id="authBtn" data-mode="in">เข้าสู่ระบบ</button>
+    </div>
+    <div class="side-user">
+      <span class="avatar" id="avatar">H</span>
+      <span class="who"><b id="whoName">HITAP</b><small id="whoSub"><span class="i18n-th">ใช้ฟรี · ไม่ใช้เครดิต</span><span class="i18n-en">Free · no credits</span></small></span>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="th">ไทย</button><button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <button class="menu-btn" id="menuBtn" aria-label="Menu">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+
+  <main class="main">
+    <!-- ============ Home ============ -->
+    <section class="page" id="page-home">
+      <div class="home">
+        <div class="home-icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" width="74" height="74"><rect x="10" y="8" width="38" height="48" rx="7" fill="var(--emerald-light)"/><path d="M19 24h20M19 32h20M19 40h12" stroke="var(--emerald)" stroke-width="4" stroke-linecap="round"/><path d="M50 4l2.2 5.8L58 12l-5.8 2.2L50 20l-2.2-5.8L42 12l5.8-2.2z" fill="var(--emerald)"/></svg>
+        </div>
+        <h1 class="hello"><span class="i18n-th">สวัสดีครับ</span><span class="i18n-en">Hello there</span></h1>
+        <p class="hello-sub"><span class="i18n-th">แค่บอกสิ่งที่คุณต้องการ ที่เหลือให้เราจัดการให้</span><span class="i18n-en">Just tell us what you need — we'll handle the rest</span></p>
+
+        <form class="composer" id="homeComposer">
+          <textarea id="homeText" rows="2" data-ph-th="เช่น ขอลาพักผ่อน ตั้งแต่ 20 ต.ค. 2569 ถึง 27 ต.ค. 2569 ชื่อ นางสาวสมหญิง ใจดี ตำแหน่งนักวิจัย ฝ่าย HTA  ·  ทำ NDA ให้นาย…  ·  ใบสำคัญรับเงิน…" data-ph-en="e.g. Annual leave from 20 Oct 2026 to 27 Oct 2026, name Ms. Jane Doe, position Researcher  ·  NDA for…  ·  receipt voucher…"></textarea>
+          <div class="composer-bar">
+            <div class="doc-lang" id="homeLang" role="radiogroup">
+              <button type="button" class="active" data-v="auto"><span class="i18n-th">ตรวจภาษาอัตโนมัติ</span><span class="i18n-en">Auto-detect</span></button>
+              <button type="button" data-v="th">ฉบับไทย</button>
+              <button type="button" data-v="en">English</button>
+            </div>
+            <button class="send" type="submit" aria-label="Send">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            </button>
+          </div>
+        </form>
+
+        <p class="home-hint" id="homeHint" hidden></p>
+        <div class="starter-head">
+          <span><span class="i18n-th">เริ่มจากแม่แบบที่ตรงกับงานของคุณ</span><span class="i18n-en">Start from a template</span></span>
+          <a class="ghost-pill" href="#/forms">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span class="i18n-th">ค้นหาแม่แบบ</span><span class="i18n-en">Find a template</span></a>
+        </div>
+        <div class="starters" id="starters"></div>
+        <a class="all-link" href="#/forms"><span class="i18n-th">ดูคลังแม่แบบทั้งหมด ›</span><span class="i18n-en">See all templates ›</span></a>
+      </div>
+    </section>
+
+    <!-- ============ Forms ============ -->
+    <section class="page" id="page-forms">
+      <div class="forms-wrap">
+        <h1 class="page-title"><span class="i18n-th">แบบฟอร์ม</span><span class="i18n-en">Forms</span></h1>
+        <p class="page-sub"><span class="i18n-th">แบบฟอร์มหน่วยงานพร้อมกรอกและดาวน์โหลด — ใช้ฟรี ไม่คิดเครดิต</span><span class="i18n-en">Ready-to-fill forms — free, no credits</span> · <span id="formCount"></span></p>
+        <label class="search-box">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="formSearch" type="search" data-ph-th="ค้นหาแบบฟอร์ม" data-ph-en="Search forms">
+        </label>
+        <div class="forms-grid">
+          <div>
+            <div class="cat-head"><span class="i18n-th">เลือกตามหมวดงาน</span><span class="i18n-en">Browse by category</span></div>
+            <div class="cats" id="cats"></div>
+          </div>
+          <div>
+            <div class="cat-label" id="catLabel"></div>
+            <div class="form-list" id="formList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Workspace (chat + document) ============ -->
+    <section class="page" id="page-doc">
+      <div class="ws" id="ws" data-pane="chat">
+        <div class="chat-pane">
+          <div class="chat-top">
+            <h2 id="chatTitle"></h2>
+            <span class="status" id="docStatus"></span>
+            <a class="top-link" href="#/">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+              <span class="i18n-th">เอกสารใหม่</span><span class="i18n-en">New document</span></a>
+          </div>
+          <div class="ws-tabs" role="tablist">
+            <button type="button" data-pane="chat" class="active"><span class="i18n-th">แชท</span><span class="i18n-en">Chat</span></button>
+            <button type="button" data-pane="doc"><span class="i18n-th">เอกสาร</span><span class="i18n-en">Document</span></button>
+          </div>
+          <div class="thread" id="thread"></div>
+          <form class="composer composer-chat" id="chatComposer">
+            <textarea id="chatText" rows="2" data-ph-th="พิมพ์ข้อมูลเพิ่ม หรือสั่งแก้ เช่น “ตำแหน่ง นักวิจัยอาวุโส”" data-ph-en="Add details or edit, e.g. “position Senior Researcher”"></textarea>
+            <div class="composer-bar">
+              <div class="quick" id="quick"></div>
+              <button class="send" type="submit" aria-label="Send">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              </button>
+            </div>
+          </form>
+          <p class="fineprint"><span class="i18n-th">ระบบช่วยกรอกทำงานในเครื่องของคุณ ใช้ฟรี ไม่คิดเครดิต ไม่ส่งข้อมูลออกไปภายนอก — ควรตรวจสอบก่อนนำไปใช้งานจริงเสมอ</span><span class="i18n-en">The assistant runs in your browser and sends nothing out — always review before use</span></p>
+        </div>
+
+        <div class="doc-pane">
+          <div class="doc-head">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+            <b id="docName"></b>
+            <span class="made" id="docMade"></span>
+            <span class="grow"></span>
+            <button class="tb" type="button" id="editBtn" aria-pressed="false">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+              <span class="i18n-th">แก้ไข</span><span class="i18n-en">Edit</span></button>
+            <button class="tb" type="button" id="signBtn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c3-3 4.5-9 7-9s-1 9 2 9 3-4 5-4 1 4 4 4"/><path d="M3 21h18"/></svg>
+              <span class="i18n-th">ลงนาม</span><span class="i18n-en">Sign</span><span class="count" id="signCount"></span></button>
+            <button class="tb" type="button" id="printBtn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>
+              PDF</button>
+            <button class="tb tb-dark" type="button" id="downloadBtn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+              <span id="downloadLabel">DOCX</span></button>
+          </div>
+          <div class="paper-scroll" id="paperScroll"><div id="preview"></div></div>
+          <aside class="edit-drawer" id="editDrawer" aria-hidden="true">
+            <div class="drawer-head">
+              <b><span class="i18n-th">แก้ไขข้อมูลในเอกสาร</span><span class="i18n-en">Edit document fields</span></b>
+              <button type="button" class="icon-btn" id="closeDrawer" aria-label="Close">✕</button>
+            </div>
+            <form id="ndaForm" autocomplete="off"></form>
+          </aside>
+          <p class="doc-foot"><span class="i18n-th">HITAP Docs คือเครื่องมือช่วยร่างเอกสาร — กรุณาตรวจสอบความถูกต้องก่อนนำไปใช้งานจริง</span><span class="i18n-en">HITAP Docs is a drafting aid — please check the document before use</span></p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Inline field editor -->
+<div class="pop" id="pop" hidden>
+  <label class="pop-label" id="popLabel"></label>
+  <div id="popInput"></div>
+  <div class="pop-note" id="popNote"></div>
+  <div class="pop-actions">
+    <button type="button" class="btn btn-light" id="popCancel"><span class="i18n-th">ยกเลิก</span><span class="i18n-en">Cancel</span></button>
+    <button type="button" class="btn btn-dark" id="popSave"><span class="i18n-th">บันทึก</span><span class="i18n-en">Save</span></button>
+  </div>
+</div>
+
+<!-- Signature dialog -->
+<dialog class="modal" id="signDlg">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2><span class="i18n-th">ลงนามในเอกสาร</span><span class="i18n-en">Sign the document</span></h2>
+      <button type="button" class="icon-btn" id="signClose" aria-label="Close">✕</button>
+    </div>
+    <div class="signers" id="signers"></div>
+    <div class="sign-modes" role="tablist">
+      <button type="button" data-mode="draw" class="active"><span class="i18n-th">วาดลายเซ็น</span><span class="i18n-en">Draw</span></button>
+      <button type="button" data-mode="type"><span class="i18n-th">พิมพ์ชื่อ</span><span class="i18n-en">Type</span></button>
+      <button type="button" data-mode="upload"><span class="i18n-th">อัปโหลดรูป</span><span class="i18n-en">Upload</span></button>
+    </div>
+    <div class="sign-area">
+      <div class="sign-mode" data-mode="draw">
+        <div class="pad-wrap">
+          <canvas id="pad"></canvas>
+          <span class="pad-line"></span>
+          <span class="pad-hint" id="padHint"><span class="i18n-th">เซ็นชื่อในกรอบนี้ด้วยเมาส์ นิ้ว หรือปากกา</span><span class="i18n-en">Sign here with a mouse, finger or stylus</span></span>
+        </div>
+        <div class="pad-tools">
+          <div class="inks" id="inks">
+            <button type="button" class="ink active" data-ink="#1b2a6b" style="--ink:#1b2a6b" aria-label="Blue ink"></button>
+            <button type="button" class="ink" data-ink="#101924" style="--ink:#101924" aria-label="Black ink"></button>
+          </div>
+          <button type="button" class="btn btn-light btn-sm" id="padClear"><span class="i18n-th">ล้าง</span><span class="i18n-en">Clear</span></button>
+        </div>
+      </div>
+      <div class="sign-mode" data-mode="type" hidden>
+        <input id="typeName" type="text" class="type-input">
+        <div class="type-preview" id="typePreview"></div>
+      </div>
+      <div class="sign-mode" data-mode="upload" hidden>
+        <label class="upload-zone">
+          <input id="uploadFile" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+          <span class="i18n-th">คลิกเพื่อเลือกรูปลายเซ็น (PNG/JPG) — พื้นขาวจะถูกทำให้โปร่งใส</span><span class="i18n-en">Click to choose a signature image (PNG/JPG) — white background becomes transparent</span>
+        </label>
+        <img id="uploadPreview" class="upload-preview" alt="" hidden>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-light" id="signRemove"><span class="i18n-th">ลบลายเซ็นนี้</span><span class="i18n-en">Remove signature</span></button>
+      <span class="grow"></span>
+      <button type="button" class="btn btn-dark" id="signSave"><span class="i18n-th">ใส่ลายเซ็น</span><span class="i18n-en">Apply signature</span></button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Sign-in dialog -->
+<dialog class="modal modal-sm" id="loginDlg">
+  <form class="modal-card" id="loginForm">
+    <div class="modal-head">
+      <h2><span class="i18n-th">เข้าสู่ระบบ</span><span class="i18n-en">Sign in</span></h2>
+      <button type="button" class="icon-btn" id="loginClose" aria-label="Close">✕</button>
+    </div>
+    <p class="help-note"><span class="i18n-th">ใส่อีเมลแล้วเราจะส่งลิงก์เข้าสู่ระบบให้ (ไม่ต้องตั้งรหัสผ่าน) เอกสาร ลายเซ็น และข้อมูลของคุณจะซิงก์ทุกเครื่อง และมีแค่คุณที่เห็น</span><span class="i18n-en">Enter your email and we'll send a sign-in link (no password). Your documents, signatures and details sync across devices and only you can see them.</span></p>
+    <label class="field"><span><span class="i18n-th">อีเมล</span><span class="i18n-en">Email</span></span>
+      <input id="loginEmail" type="email" autocomplete="email" placeholder="name@hitap.net" required>
+    </label>
+    <p class="note" id="loginMsg" aria-live="polite"></p>
+    <div class="modal-actions"><span class="grow"></span><button type="submit" class="btn btn-dark" id="loginSend"><span class="i18n-th">ส่งลิงก์เข้าสู่ระบบ</span><span class="i18n-en">Send sign-in link</span></button></div>
+  </form>
+</dialog>
+
+<!-- Help dialog -->
+<dialog class="modal" id="helpDlg">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2><span class="i18n-th">วิธีใช้งาน</span><span class="i18n-en">How it works</span></h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
+    </div>
+    <ol class="help-list">
+      <li><span class="i18n-th">พิมพ์บอกว่าต้องการเอกสารอะไร พร้อมข้อมูลที่มี ระบบจะเลือกแบบฟอร์มของ HITAP ที่ตรงที่สุดและกรอกให้ทันที (NDA ใบลา ใบสำคัญรับเงิน ใบยืมเงิน COI A1/A2 AR1 ฯลฯ)</span><span class="i18n-en">Say what you need with any details; the closest HITAP form is picked and filled right away (NDA, leave, receipts, cash advance, COI, A1/A2, AR1…)</span></li>
+      <li><span class="i18n-th">ตอบคำถามที่ระบบถาม หรือคลิกช่องในเอกสารเพื่อกรอกเอง (PDF และ Excel พิมพ์ลงช่องได้ทันที ยอดรวมคำนวณให้อัตโนมัติ)</span><span class="i18n-en">Answer the follow-up questions, or click a field in the document (PDF and Excel fields are typed in place; totals calculate automatically)</span></li>
+      <li><span class="i18n-th">กด “ลงนาม” หรือคลิกเส้นลงชื่อในเอกสาร เพื่อวาด/พิมพ์/อัปโหลดลายเซ็น</span><span class="i18n-en">Press “Sign” or click a signature line to draw, type or upload a signature</span></li>
+      <li><span class="i18n-th">กดปุ่มดาวน์โหลด (DOCX / PDF / XLSX) เพื่อรับไฟล์ในรูปแบบเดียวกับต้นฉบับ</span><span class="i18n-en">Press the download button (DOCX / PDF / XLSX) to get the file in its original format</span></li>
+    </ol>
+    <p class="help-note"><span class="i18n-th">ทุกอย่างทำงานในเบราว์เซอร์ ใช้ฟรีไม่จำกัด ไม่มีเครดิต ข้อมูลและลายเซ็นเก็บไว้ในเครื่องนี้เท่านั้น</span><span class="i18n-en">Everything runs in the browser — free, unlimited, no credits. Data and signatures stay on this device.</span></p>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.5/dist/docx-preview.min.js"></script>
+<script src="templates.js"></script>
+<script src="catalog.js"></script>
+<script src="engines/util.js"></script>
+<script src="engines/docx.js"></script>
+<script src="engines/pdf.js"></script>
+<script src="engines/xlsx.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script src="cloud.js"></script>
+</body>
+</html>

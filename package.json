@@ -1,0 +1,12 @@
+{
+  "name": "hitap-docs",
+  "private": true,
+  "description": "HITAP document generator — build step turns the files in templates/ into catalog data",
+  "scripts": {
+    "build": "node build/build-templates.mjs"
+  },
+  "devDependencies": {
+    "jszip": "3.10.1",
+    "pdfjs-dist": "3.11.174"
+  }
+}
