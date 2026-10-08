@@ -548,3 +548,15 @@ table.xl td.xl-input:hover { outline: 1px solid var(--emerald); outline-offset: 
 .admin-gate input:focus { border-color: var(--soft-fg); box-shadow: none; }
 .admin-gate .err { color: #dc2626; font-size: 13px; min-height: 20px; margin-top: 10px; }
 .admin-gate .muted-link { display: inline-block; margin-top: 18px; font-size: 13px; color: var(--muted-fg); background: none; border: 0; cursor: pointer; }
+
+/* ---- Composer type scale: match body text (15px) ---- */
+.composer { padding: 10px 10px 8px 16px; }
+.composer textarea, .composer-chat textarea { font-size: 15px; line-height: 1.6; min-height: 26px; padding: 3px 0; }
+.composer .doc-lang button, .composer .quick button { font-size: 12.5px; padding: 3px 11px; }
+.send, .send:hover { width: 32px; height: 32px; }
+.send svg { width: 16px; height: 16px; }
+.msg-user { font-size: 15px; }
+.bot-body { font-size: 15px; }
+.bot-body .lead { font-size: 15.5px; }
+.bot-body .kv { font-size: 14px; }
+.doc-card .t b { font-size: 15px; }
