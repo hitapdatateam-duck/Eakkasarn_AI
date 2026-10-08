@@ -987,38 +987,19 @@
         if (confirm(tr('ออกจากระบบ? เอกสารในเครื่องนี้จะถูกล้าง (ยังอยู่บนคลาวด์)', 'Sign out? Documents on this device are cleared (they stay in the cloud).'))) await HD.cloud.signOut();
         return;
       }
-      $('#loginMsg').textContent = ''; $('#loginPassword').value = ''; $('#loginDlg').showModal(); $('#loginEmail').focus();
+      $('#loginMsg').textContent = ''; $('#loginMs').disabled = false; $('#loginDlg').showModal();
     });
     $('#whoSub').addEventListener('click', () => { if (HD.cloud && HD.cloud.status() === 'error') HD.cloud.sync(); });
-    const setLoginMode = m => {
-      $('#loginForm').dataset.mode = m; $('#loginMsg').textContent = '';
-      $('#loginPassword').autocomplete = m === 'up' ? 'new-password' : 'current-password';
-    };
-    $('#loginToggle').addEventListener('click', () => setLoginMode($('#loginForm').dataset.mode === 'in' ? 'up' : 'in'));
-    $('#loginForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const email = $('#loginEmail').value.trim(), password = $('#loginPassword').value;
-      const signUp = $('#loginForm').dataset.mode === 'up';
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { $('#loginMsg').textContent = tr('อีเมลไม่ถูกต้อง', 'Invalid email'); return; }
-      if (password.length < 6) { $('#loginMsg').textContent = tr('รหัสผ่านอย่างน้อย 6 ตัวอักษร', 'Password must be at least 6 characters'); return; }
-      $('#loginSend').disabled = true;
-      $('#loginMsg').textContent = signUp ? tr('กำลังสร้างบัญชี…', 'Creating account…') : tr('กำลังเข้าสู่ระบบ…', 'Signing in…');
-      try {
-        const res = signUp ? await HD.cloud.signUp(email, password) : await HD.cloud.signInPassword(email, password);
-        if (signUp && !res.session) {
-          $('#loginMsg').textContent = tr('สร้างบัญชีแล้ว — ต้องยืนยันอีเมลก่อนจึงจะเข้าสู่ระบบได้', 'Account created — confirm your email before signing in');
-          return;
-        }
-        $('#loginDlg').close();
-        toast(tr('เข้าสู่ระบบแล้ว', 'Signed in'));
-      } catch (err) {
-        const m = err.message || '';
-        $('#loginMsg').textContent = /invalid/i.test(m) ? tr('อีเมลหรือรหัสผ่านไม่ถูกต้อง', 'Wrong email or password')
-          : /not confirmed/i.test(m) ? tr('บัญชียังไม่ได้ยืนยันอีเมล', 'This account email is not confirmed yet')
-          : /already registered/i.test(m) ? tr('อีเมลนี้มีบัญชีแล้ว — เข้าสู่ระบบแทน', 'This email already has an account — sign in instead')
-          : /rate|too many/i.test(m) ? tr('ลองหลายครั้งเกินไป รอสักครู่แล้วลองใหม่', 'Too many attempts — wait a moment')
-          : m;
-      } finally { $('#loginSend').disabled = false; }
+    $('#loginMs').addEventListener('click', async () => {
+      $('#loginMs').disabled = true;
+      $('#loginMsg').textContent = tr('กำลังไปหน้า Microsoft…', 'Redirecting to Microsoft…');
+      try { await HD.cloud.signInMicrosoft(); }
+      catch (err) {
+        $('#loginMs').disabled = false;
+        $('#loginMsg').textContent = /provider is not enabled|Unsupported provider/i.test(err.message || '')
+          ? tr('ยังไม่ได้เปิดการเข้าสู่ระบบด้วย Microsoft ใน Supabase', 'Microsoft sign-in is not enabled in Supabase yet')
+          : tr('เข้าสู่ระบบไม่สำเร็จ: ', 'Sign-in failed: ') + err.message;
+      }
     });
     $('#loginClose').addEventListener('click', () => $('#loginDlg').close());
     // cloud.js loads after this file and calls HD.onCloudReady once HD.cloud exists

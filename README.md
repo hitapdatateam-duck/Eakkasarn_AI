@@ -33,7 +33,7 @@ To add a form: copy the file into `templates/`, add an entry to `build/templates
 
 ## Admin back-office
 
-Admins (rows in `public.admins`, by email) sign in with email + password (or the password-only gate at `#/admin`) and get an **ผู้ดูแลระบบ / Admin**
+Admins (rows in `public.admins`, by email) sign in with Microsoft 365 (or the password-only gate at `#/admin`) and get an **ผู้ดูแลระบบ / Admin**
 menu (`#/admin`):
 
 - **Templates** — hide/show any template; delete uploaded ones (built-in templates live in this repo, so they
@@ -50,3 +50,9 @@ RLS: anyone can read `templates`; only `public.is_admin()` can write it or uploa
 
 Light/dark follows the operating system; the button next to the language switch cycles
 system → light → dark (remembered per browser).
+
+## Sign-in (Microsoft 365, @hitap.net only)
+
+Users sign in with Supabase's **Azure** provider (Microsoft Entra ID). Only `@hitap.net` accounts are accepted:
+the Entra app is single-tenant, the browser signs out any other domain, and the database trigger
+`public.enforce_hitap_domain` on `auth.users` refuses to create or rename a user outside the domain.

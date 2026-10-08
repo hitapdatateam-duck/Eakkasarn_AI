@@ -1,4 +1,4 @@
-/* Supabase back-end: email + password sign-in and per-user sync of documents and profile.
+/* Supabase back-end: Microsoft 365 sign-in (@hitap.net only) and per-user sync of documents and profile.
    Row Level Security limits every row to its owner, so the publishable key is safe in the browser.
    Signed out, the app keeps working from localStorage only. */
 (() => {
@@ -6,6 +6,8 @@
   const HD = window.HD;
   const CFG = window.HD_SUPABASE || {};
   const SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js';
+  const DOMAIN = CFG.domain || 'hitap.net';
+  const allowed = u => !!u && (u.email || '').toLowerCase().endsWith('@' + DOMAIN);
   const listeners = new Set();
   let client = null, user = null, status = 'off', pushTimer = null;
   const pending = new Map();
@@ -22,6 +24,7 @@
       auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true },
     });
     client.auth.onAuthStateChange((event, session) => {
+      if (session && !allowed(session.user)) { rejectForeign(); return; }
       const next = session ? session.user : null;
       const changed = (next && next.id) !== (user && user.id);
       user = next;
@@ -31,10 +34,24 @@
       else emit();
     });
     loadTemplates();
+    const q = new URLSearchParams(location.search + '&' + location.hash.replace(/^#/, ''));
+    if (q.get('error_description')) {
+      const msg = q.get('error_description');
+      history.replaceState(null, '', location.pathname);
+      alert(/database error/i.test(msg) ? `ใช้ได้เฉพาะบัญชี @${DOMAIN} เท่านั้น\nOnly @${DOMAIN} accounts can sign in.` : `เข้าสู่ระบบไม่สำเร็จ / Sign-in failed: ${msg}`);
+    }
     const { data } = await client.auth.getSession();
-    user = data.session ? data.session.user : null;
+    user = data.session && allowed(data.session.user) ? data.session.user : null;
+    if (data.session && !user) rejectForeign();
     checkAdmin();
     if (user) pull(); else setStatus('signed-out');
+  }
+
+  function rejectForeign() {
+    user = null;
+    setTimeout(() => client.auth.signOut(), 0);
+    setStatus('signed-out');
+    alert(`ใช้ได้เฉพาะบัญชี @${DOMAIN} เท่านั้น\nOnly @${DOMAIN} accounts can sign in.`);
   }
 
   /** Merge cloud rows with the local copies (newest wins) and upload local-only/newer ones. */
@@ -127,19 +144,14 @@
     onChange(fn) { listeners.add(fn); fn({ user, status }); return () => listeners.delete(fn); },
     saveDoc(d) { if (!user || !d) return; pending.set(d.id, d); setStatus('saving'); schedule(); },
     saveProfile(p) { if (!user) return; profilePending = p; schedule(); },
-    async signInPassword(email, password) {
+    /** Microsoft 365 (Entra ID) via Supabase's "azure" provider; only @hitap.net is accepted. */
+    async signInMicrosoft() {
       if (!client) throw new Error('Supabase is not available');
-      const { data, error } = await client.auth.signInWithPassword({ email, password });
+      const { error } = await client.auth.signInWithOAuth({
+        provider: 'azure',
+        options: { scopes: 'email openid profile', redirectTo: location.origin + location.pathname, queryParams: { domain_hint: DOMAIN, prompt: 'select_account' } },
+      });
       if (error) throw error;
-      return data;
-    },
-    async signUp(email, password) {
-      if (!client) throw new Error('Supabase is not available');
-      const { data, error } = await client.auth.signUp({ email, password });
-      if (error) throw error;
-      // with email confirmation on, Supabase returns no session and an empty identities list for an existing address
-      if (data.user && Array.isArray(data.user.identities) && !data.user.identities.length) throw new Error('User already registered');
-      return data;
     },
     /** Admin page: password sign-in to the configured admin account (no email round-trip). */
     async signInAdmin(password) {

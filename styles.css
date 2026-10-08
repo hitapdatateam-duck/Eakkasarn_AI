@@ -561,7 +561,7 @@ table.xl td.xl-input:hover { outline: 1px solid var(--emerald); outline-offset: 
 .bot-body .kv { font-size: 14px; }
 .doc-card .t b { font-size: 15px; }
 
-/* ---- Password sign-in dialog ---- */
-#loginForm[data-mode="in"] .login-up, #loginForm[data-mode="up"] .login-in { display: none; }
-.link-btn { background: none; border: 0; padding: 0; color: var(--muted-fg); font-size: 13px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.link-btn:hover { color: var(--fg); }
+/* ---- Microsoft 365 sign-in ---- */
+.ms-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 44px; margin-top: 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--fg); font-weight: 500; cursor: pointer; }
+.ms-btn:hover { border-color: var(--soft-fg); }
+.ms-btn:disabled { opacity: .6; cursor: default; }
