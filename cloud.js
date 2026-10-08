@@ -147,6 +147,9 @@
     /** Microsoft 365 (Entra ID) via Supabase's "azure" provider; only @hitap.net is accepted. */
     async signInMicrosoft() {
       if (!client) throw new Error('Supabase is not available');
+      // avoid landing on Supabase's raw JSON error page while the provider is still switched off
+      const res = await fetch(`${CFG.url}/auth/v1/settings`, { headers: { apikey: CFG.key } }).then(r => r.json()).catch(() => null);
+      if (res && res.external && !res.external.azure) throw new Error('provider is not enabled');
       const { error } = await client.auth.signInWithOAuth({
         provider: 'azure',
         options: { scopes: 'email openid profile', redirectTo: location.origin + location.pathname, queryParams: { domain_hint: DOMAIN, prompt: 'select_account' } },
