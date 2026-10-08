@@ -30,3 +30,23 @@ npm run build
 
 To add a form: copy the file into `templates/`, add an entry to `build/templates.config.mjs`
 (title, category, and labels for the fields the assistant should ask about), then run `npm run build`.
+
+## Admin back-office
+
+Admins (rows in `public.admins`, by email) sign in with the magic link and get an **ผู้ดูแลระบบ / Admin**
+menu (`#/admin`):
+
+- **Templates** — hide/show any template; delete uploaded ones (built-in templates live in this repo, so they
+  can only be hidden).
+- **Add template** — upload a `.docx`, `.pdf` or `.xlsx`; it is analysed in the browser with the same
+  `build/compile.mjs` the build uses. Rename fields, choose which ones the assistant asks, link profile items,
+  click on flat PDFs to place text/signature boxes, list Excel cells. Files go to the Supabase Storage bucket
+  `templates`, metadata to `public.templates`.
+- **Admins** — add or remove admin emails.
+
+RLS: anyone can read `templates`; only `public.is_admin()` can write it or upload to the bucket.
+
+## Theme
+
+Light/dark follows the operating system; the button next to the language switch cycles
+system → light → dark (remembered per browser).

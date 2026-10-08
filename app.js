@@ -92,7 +92,7 @@
     tpl.signers = tpl.signers || [];
     tpl.short = tpl.short || tpl.title;
     if (!tpl.loadData) tpl.loadData = () => U.loadTemplateData(tpl);
-    if (!tpl.original) tpl.originalHref = `templates/${tpl.file}`;
+    if (!tpl.original && !tpl.originalHref) tpl.originalHref = `templates/${tpl.file}`;
     for (const f of tpl.fields) {
       if (f.tag === 'name') f.nameField = true;
       if (f.tag === 'id_card') f.idField = true;
@@ -100,8 +100,13 @@
     tpl.kwList = buildKeywords(tpl);
     return tpl;
   }
+  // TEMPLATES holds every known template (built-in + uploaded by admins); hidden ones stay resolvable
+  // for documents that already use them but are left out of the catalog.
   const TEMPLATES = [ndaTemplate('th'), ndaTemplate('en'), ...(window.HD_CATALOG || [])].map(normalize);
   const TPL = id => TEMPLATES.find(t => t.id === id);
+  const VISIBLE = () => TEMPLATES.filter(t => !t.hidden);
+  const HD_BUILTIN_IDS = new Set(TEMPLATES.map(t => t.id));
+  let remoteLoaded = false;
   const visibleFields = tpl => tpl.fields.filter(f => !f.hide && !f.table && !f.cont && f.type !== 'calc');
 
   /* ================= Values ================= */
@@ -255,12 +260,16 @@
       [/^ลา|ขอลา|ใบลา|การลา|วันลา|ลาพัก|ลาป่วย|ลากิจ|ลาคลอด|ลาบวช|ลาอุปสมบท|ลาไป|\bleave\b|มอบหมายงาน/, () => (/fm-hr|hr-004/.test(t) ? 'leave-hr' : 'leave-adm')],
       [/nda|non-?disclosure|เก็บรักษาข้อมูล|ความลับ|สัญญา/, () => `nda-${lang}`],
     ];
-    for (const [re, pick] of rules) if (re.test(t)) { const id = pick(); if (TPL(id)) return id; }
+    for (const [re, pick] of rules) if (re.test(t)) { const id = pick(); if (TPL(id) && !TPL(id).hidden) return id; }
+    // uploaded templates: match on their title words
+    const custom = VISIBLE().find(x => !x.builtin && x.cat !== 'contract' && [x.title.th, x.title.en].some(ti => ti && ti.length > 3 && t.includes(ti.toLowerCase().slice(0, 12))));
+    if (custom) return custom.id;
     return null;
   }
 
   /* ================= Documents (persisted) ================= */
-  let docs = store.get(LS.docs, []).map(d => (d.tpl ? d : { ...d, tpl: `nda-${d.lang || 'th'}` })).filter(d => TPL(d.tpl));
+  // documents of uploaded templates are kept even before the catalog arrives from Supabase
+  let docs = store.get(LS.docs, []).map(d => (d.tpl ? d : { ...d, tpl: `nda-${d.lang || 'th'}` }));
   let current = null;
   const saveDocs = () => {
     docs.sort((a, b) => b.updated - a.updated);
@@ -717,9 +726,9 @@
   function renderForms() {
     const q = ($('#formSearch').value || '').trim().toLowerCase(), Lg = uiLang();
     const match = t => (activeCat === 'all' || t.cat === activeCat) && (!q || (t.title.th + t.title.en + t.desc.th + t.desc.en + t.file).toLowerCase().includes(q));
-    $('#formCount').textContent = tr(`${TEMPLATES.length} แบบ`, `${TEMPLATES.length} forms`);
-    $('#cats').innerHTML = CATS.map(c => `<button type="button" class="cat${c.id === activeCat ? ' active' : ''}" data-cat="${c.id}">${c[Lg]} <em>${TEMPLATES.filter(t => c.id === 'all' || t.cat === c.id).length}</em></button>`).join('');
-    const list = TEMPLATES.filter(match);
+    $('#formCount').textContent = tr(`${VISIBLE().length} แบบ`, `${VISIBLE().length} forms`);
+    $('#cats').innerHTML = CATS.map(c => `<button type="button" class="cat${c.id === activeCat ? ' active' : ''}" data-cat="${c.id}">${c[Lg]} <em>${VISIBLE().filter(t => c.id === 'all' || t.cat === c.id).length}</em></button>`).join('');
+    const list = VISIBLE().filter(match);
     $('#catLabel').textContent = `${CATS.find(c => c.id === activeCat)[Lg]} · ${tr(`${list.length} แบบ`, `${list.length} forms`)}`;
     $('#formList').innerHTML = list.length ? list.map(t => {
       const n = visibleFields(t).length;
@@ -734,7 +743,7 @@
   }
   function renderHistory() {
     const q = ($('#historySearch').value || '').trim().toLowerCase();
-    const items = docs.filter(d => !q || (d.title + JSON.stringify(d.values)).toLowerCase().includes(q));
+    const items = docs.filter(d => TPL(d.tpl) && (!q || (d.title + JSON.stringify(d.values)).toLowerCase().includes(q)));
     $('#historyList').innerHTML = items.length
       ? items.map(d => `<li><a href="#/doc/${d.id}" class="${current && d.id === current.id && location.hash.startsWith('#/doc') ? 'active' : ''}" title="${htmlEsc(d.title)}">${htmlEsc(d.title)}</a></li>`).join('')
       : `<li class="empty">${q ? tr('ไม่พบแชท', 'No matches') : tr('ยังไม่มีประวัติแชท', 'No chats yet')}</li>`;
@@ -764,13 +773,15 @@
     if ((m = /^#\/new\/([\w-]+)$/.exec(h)) && TPL(m[1])) { startDoc('', m[1]); return; }
     if ((m = /^#\/doc\/(\w+)/.exec(h))) {
       const d = docs.find(x => x.id === m[1]);
-      if (!d) { location.hash = '#/'; return; }
+      if (d && !TPL(d.tpl) && !remoteLoaded) { show('doc'); $('#preview').innerHTML = `<div class="preview-msg">${tr('กำลังโหลดแม่แบบ…', 'Loading template…')}</div>`; return; }
+      if (!d || !TPL(d.tpl)) { location.hash = '#/'; return; }
       if (current !== d) { current = d; ctxCache = null; $('#preview').replaceChildren(); $('#paperScroll').scrollTop = 0; toggleDrawer(false); }
       d.signs = d.signs || {}; d.skipped = d.skipped || []; d.msgs = d.msgs || [];
       show('doc'); updateChrome(); renderThread(); renderPreview(); renderHistory();
       return;
     }
-    if (h.startsWith('#/forms')) { show('forms'); renderForms(); }
+    if (h.startsWith('#/admin')) { show('admin'); if (HD.admin) HD.admin.render(); else $('#adminRoot').innerHTML = `<div class="preview-msg">${tr('กำลังโหลด…', 'Loading…')}</div>`; }
+    else if (h.startsWith('#/forms')) { show('forms'); renderForms(); }
     else { show('home'); renderHome(); }
     renderHistory();
   }
@@ -800,7 +811,7 @@
       const id = t ? detectTemplate(t, homeLang) : `nda-${homeLang === 'en' ? 'en' : 'th'}`;
       if (!id) {
         $('#homeHint').hidden = false;
-        $('#homeHint').innerHTML = `${tr('ยังไม่แน่ใจว่าต้องการเอกสารแบบไหน — เลือกแม่แบบ:', 'Not sure which document you need — pick a template:')} ${TEMPLATES.map(x => `<button type="button" class="chip-tpl" data-tpl="${x.id}">${htmlEsc(x.short[uiLang()].slice(0, 40))}</button>`).join('')}`;
+        $('#homeHint').innerHTML = `${tr('ยังไม่แน่ใจว่าต้องการเอกสารแบบไหน — เลือกแม่แบบ:', 'Not sure which document you need — pick a template:')} ${VISIBLE().map(x => `<button type="button" class="chip-tpl" data-tpl="${x.id}">${htmlEsc(x.short[uiLang()].slice(0, 40))}</button>`).join('')}`;
         return;
       }
       $('#homeText').value = ''; $('#homeHint').hidden = true;
@@ -915,13 +926,35 @@
     getDocs: () => docs,
     getProfile: () => store.get(LS.profile, {}),
     replaceAll(list, profile) {
-      docs = list.filter(d => d && TPL(d.tpl));
+      docs = list.filter(d => d && d.tpl);
       if (current) current = docs.find(d => d.id === current.id) || current;
       ctxCache = null;
       store.set(LS.docs, docs.slice(0, 40));
       store.set(LS.profile, profile || {});
       route();
     },
+    /** rows from public.templates: hide built-ins, add/replace uploaded templates */
+    setRemoteTemplates(rows, urlOf) {
+      for (const t of TEMPLATES) if (t.builtin || HD_BUILTIN_IDS.has(t.id)) t.hidden = false;
+      for (let i = TEMPLATES.length - 1; i >= 0; i--) if (TEMPLATES[i].remote) TEMPLATES.splice(i, 1);
+      for (const r of rows) {
+        const existing = TPL(r.id);
+        if (existing && HD_BUILTIN_IDS.has(r.id)) { existing.hidden = !!r.hidden; continue; }
+        if (r.builtin || !r.meta || !r.meta.fields) continue;
+        const t = normalize({ ...r.meta, id: r.id, kind: r.kind, remote: true, hidden: !!r.hidden, dataPath: r.data_path, originalPath: r.original_path,
+          dataUrl: r.data_path ? urlOf(r.data_path) : null, originalHref: r.original_path ? urlOf(r.original_path) : null });
+        TEMPLATES.push(t);
+      }
+      remoteLoaded = true;
+      if (!location.hash.startsWith('#/admin')) route(); else renderHistory();
+    },
+    templates: () => TEMPLATES,
+    builtinIds: () => [...HD_BUILTIN_IDS],
+    categories: () => CATS.filter(c => c.id !== 'all'),
+    setAdmin(isAdmin) { $('#adminLink').hidden = !isAdmin; if (location.hash.startsWith('#/admin') && !isAdmin) location.hash = '#/'; },
+    toast: msg => toast(msg),
+    tr: (a, b) => tr(a, b),
+    remoteFailed() { remoteLoaded = true; route(); },
     clearLocal() {
       docs = []; current = null; ctxCache = null;
       try { localStorage.removeItem(LS.docs); localStorage.removeItem(LS.profile); } catch (e) { /* storage blocked */ }
@@ -971,7 +1004,22 @@
     if (HD.cloud) HD.onCloudReady();
   }
 
+  /* theme: system (default) → light → dark */
+  function bindTheme() {
+    const order = ['system', 'light', 'dark'];
+    const label = m => ({ system: tr('ธีม: ตามระบบ', 'Theme: system'), light: tr('ธีม: สว่าง', 'Theme: light'), dark: tr('ธีม: มืด', 'Theme: dark') })[m];
+    const cur = () => document.documentElement.dataset.theme || 'system';
+    const apply = m => {
+      if (m === 'system') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = m;
+      try { m === 'system' ? localStorage.removeItem('hitap_theme') : localStorage.setItem('hitap_theme', m); } catch (e) { /* storage blocked */ }
+      $('#themeBtn').title = label(m); $('#themeBtn').setAttribute('aria-label', label(m));
+    };
+    $('#themeBtn').addEventListener('click', () => { const m = order[(order.indexOf(cur()) + 1) % 3]; apply(m); toast(label(m)); });
+    apply(cur());
+  }
+
   bind();
+  bindTheme();
   bindAccount();
   setLang(uiLang());
 })();

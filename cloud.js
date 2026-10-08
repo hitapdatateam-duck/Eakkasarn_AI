@@ -15,8 +15,8 @@
   const setStatus = s => { status = s; emit(); };
 
   async function init() {
-    if (!CFG.url || !CFG.key) return;
-    try { await HD.util.loadScript(SDK); } catch (e) { setStatus('offline'); return; }
+    if (!CFG.url || !CFG.key) { HD.appBridge && HD.appBridge.remoteFailed(); return; }
+    try { await HD.util.loadScript(SDK); } catch (e) { setStatus('offline'); HD.appBridge && HD.appBridge.remoteFailed(); return; }
     client = window.supabase.createClient(CFG.url, CFG.key, {
       // PKCE puts the sign-in result in ?code= so it doesn't collide with the app's #/ routes
       auth: { flowType: 'pkce', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true },
@@ -26,11 +26,14 @@
       const changed = (next && next.id) !== (user && user.id);
       user = next;
       if (location.search.includes('code=')) history.replaceState(null, '', location.pathname + location.hash);
+      if (changed) checkAdmin();
       if (changed && user) pull();
       else emit();
     });
+    loadTemplates();
     const { data } = await client.auth.getSession();
     user = data.session ? data.session.user : null;
+    checkAdmin();
     if (user) pull(); else setStatus('signed-out');
   }
 
@@ -93,7 +96,31 @@
   }
   const schedule = () => { clearTimeout(pushTimer); pushTimer = setTimeout(flush, 1200); };
 
+  /** Template catalog rows (public read): admin uploads and hidden built-ins. */
+  const publicUrl = path => `${CFG.url}/storage/v1/object/public/templates/${path.split('/').map(encodeURIComponent).join('/')}`;
+  async function loadTemplates() {
+    try {
+      const { data, error } = await client.from('templates').select('id, kind, builtin, hidden, meta, data_path, original_path, updated_at').order('updated_at');
+      if (error) throw error;
+      HD.appBridge.setRemoteTemplates(data || [], publicUrl);
+    } catch (e) {
+      console.error('templates', e);
+      HD.appBridge.remoteFailed();
+    }
+  }
+  let admin = false;
+  async function checkAdmin() {
+    admin = false;
+    if (user) { try { const { data } = await client.rpc('is_admin'); admin = data === true; } catch (e) { admin = false; } }
+    HD.appBridge.setAdmin(admin);
+    emit();
+  }
+
   HD.cloud = {
+    client: () => client,
+    isAdmin: () => admin,
+    publicUrl,
+    reloadTemplates: () => loadTemplates(),
     enabled: () => !!(CFG.url && CFG.key),
     user: () => user,
     status: () => status,

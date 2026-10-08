@@ -110,7 +110,14 @@
   /** Template payload {file, labels, scripts} written by the build into templates/data/<id>.js */
   U.loadTemplateData = async tpl => {
     window.HD_DATA = window.HD_DATA || {};
-    if (!window.HD_DATA[tpl.id]) await U.loadScript(tpl.data);
+    if (!window.HD_DATA[tpl.id]) {
+      if (tpl.dataUrl) {
+        // uploaded by an admin: JSON payload in Supabase Storage
+        const res = await fetch(tpl.dataUrl);
+        if (!res.ok) throw new Error(`template data ${res.status}`);
+        window.HD_DATA[tpl.id] = await res.json();
+      } else await U.loadScript(tpl.data);
+    }
     return window.HD_DATA[tpl.id];
   };
   U.LIBS = {

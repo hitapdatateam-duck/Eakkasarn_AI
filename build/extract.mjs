@@ -1,7 +1,9 @@
-// Field extraction for the three template kinds. Pure functions over file bytes;
-// build-templates.mjs merges the results with templates.config.mjs and writes the catalog.
-import JSZip from 'jszip';
-import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.js';
+// Field extraction for the three template kinds. Pure functions over file bytes, shared by the
+// Node build (build-templates.mjs) and the admin page in the browser (admin.js) — the caller
+// injects JSZip and pdf.js with setLibs().
+let JSZip = null, pdfjs = null;
+export function setLibs(libs) { JSZip = libs.JSZip; pdfjs = libs.pdfjs; }
+export const libs = () => ({ JSZip, pdfjs });
 
 const DOTS = '.…';
 const isDot = c => DOTS.includes(c);
@@ -102,7 +104,7 @@ export async function extractDocx(buf) {
     return out;
   });
   zip.file('word/document.xml', xml);
-  const tokenised = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+  const tokenised = await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
   return { fields, labels, tokenised };
 }
 const symIdxOf = (meta, i) => meta.slice(0, i).filter(m => m.kind === 'check').length;
